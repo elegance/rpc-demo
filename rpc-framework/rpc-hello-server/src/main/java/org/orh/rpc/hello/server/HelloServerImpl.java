@@ -1,6 +1,6 @@
-package org.orh.demo.rpc.hello.server;
+package org.orh.rpc.hello.server;
 
-import org.orh.demo.rpc.hello.api.HelloService;
+import org.orh.rpc.hello.api.HelloService;
 import org.orh.rpc.server.RpcService;
 
 @RpcService(HelloService.class)

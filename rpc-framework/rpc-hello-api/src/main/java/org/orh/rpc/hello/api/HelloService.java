@@ -1,4 +1,4 @@
-package org.orh.demo.rpc.hello.api;
+package org.orh.rpc.hello.api;
 
 /**
  * RPC 接口

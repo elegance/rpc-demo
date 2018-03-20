@@ -1,5 +1,6 @@
 package org.orh.rpc.server;
 
+import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import org.orh.rpc.common.bean.RpcRequest;
@@ -30,8 +31,16 @@ public class RpcServerHandler extends SimpleChannelInboundHandler<RpcRequest> {
         RpcResponse response = new RpcResponse();
         response.setRequestId(rpcRequest.getRequstId());
 
-        Object result = hande(rpcRequest);
-        response.setResult(result);
+        try {
+            Object result = hande(rpcRequest);
+            response.setResult(result);
+        } catch(Exception e) {
+            // 处理 PRC 异常
+            response.setException(e);
+            logger.error("handle result failure", e);
+        }
+        // 写入RPC 响应对象(写入完毕后立即关闭与客户端的连接)
+        channelHandlerContext.write(response).addListener(ChannelFutureListener.CLOSE);
     }
 
     private Object hande(RpcRequest rpcRequest) throws Exception {

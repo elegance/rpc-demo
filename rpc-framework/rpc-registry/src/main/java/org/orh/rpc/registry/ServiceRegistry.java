@@ -27,7 +27,7 @@ public class ServiceRegistry {
     public void init() {
         // 创建 Zookeeper 客户端
         zkClient = new ZkClient(zkAddress, Constant.ZK_SESSION_TIMEOUT, Constant.ZK_CONNECTION_TIMEOUT);
-        logger.debug("connect to zookeeper");
+        logger.info("connect to zookeeper");
     }
 
     public void register(String serviceName, String serviceAddress) {
@@ -35,19 +35,19 @@ public class ServiceRegistry {
         String registryPath = Constant.ZK_REGISTRY_PATH;
         if (!zkClient.exists(registryPath)) {
             zkClient.createPersistent(registryPath);
-            logger.debug("create registry node: {}", registryPath);
+            logger.info("create registry node: {}", registryPath);
         }
 
         // 创建 service 节点(持久)
         String servicePath = registryPath + "/" + serviceName;
         if (!zkClient.exists(servicePath)) {
             zkClient.createPersistent(servicePath);
-            logger.debug("create service node: {}", servicePath);
+            logger.info("create service node: {}", servicePath);
         }
 
         // 创建 address 节点（临时,顺序）
         String addressPath = servicePath + "/address-";
         String addressNode = zkClient.createEphemeralSequential(addressPath, serviceAddress);
-        logger.debug("create address node: {}", addressNode);
+        logger.info("create address node: {}", addressNode);
     }
 }

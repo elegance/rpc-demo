@@ -16,6 +16,7 @@
     <modules>
         <module>hello-grpc</module>
         <module>spring-boot-grpc</module>
+        <module>rpc-framework</module>
     </modules>
 
     <build>

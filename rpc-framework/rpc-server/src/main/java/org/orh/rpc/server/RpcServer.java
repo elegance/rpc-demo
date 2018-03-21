@@ -65,30 +65,37 @@ public class RpcServer implements ApplicationContextAware, InitializingBean {
         EventLoopGroup bossGroup = new NioEventLoopGroup();
         EventLoopGroup childGroup = new NioEventLoopGroup();
 
-        // 启动 RPC 服务
-        ServerBootstrap bootstrap = new ServerBootstrap();
-        bootstrap.group(bossGroup, childGroup);
-        bootstrap.channel(NioServerSocketChannel.class);
-        bootstrap.childHandler(new ChannelInitializer<SocketChannel>() {
-            @Override
-            protected void initChannel(SocketChannel socketChannel) throws Exception {
-                ChannelPipeline pipeline = socketChannel.pipeline();
+        try {
+            // 启动 RPC 服务
+            ServerBootstrap bootstrap = new ServerBootstrap();
+            bootstrap.group(bossGroup, childGroup);
+            bootstrap.channel(NioServerSocketChannel.class);
+            bootstrap.childHandler(new ChannelInitializer<SocketChannel>() {
+                @Override
+                protected void initChannel(SocketChannel socketChannel) throws Exception {
+                    ChannelPipeline pipeline = socketChannel.pipeline();
 
-                pipeline.addLast(new RpcDecoder(RpcRequest.class)); // 解码 RPC 请求
-                pipeline.addLast(new RpcEncoder(RpcResponse.class)); // 编码RPC 响应
-                pipeline.addLast(new RpcServerHandler(handlerMap)); // 处理 RPC 请求
+                    pipeline.addLast(new RpcDecoder(RpcRequest.class)); // 解码 RPC 请求
+                    pipeline.addLast(new RpcEncoder(RpcResponse.class)); // 编码RPC 响应
+                    pipeline.addLast(new RpcServerHandler(handlerMap)); // 处理 RPC 请求
+                }
+            });
+
+            ChannelFuture future = bootstrap.bind(port).sync();
+            logger.info("server started, listening on {}", port);
+
+            // 注册 RPC 服务地址
+            String serviceAddress = InetAddress.getLocalHost().getHostAddress() + ":" + port;
+            for (String interfaceName : handlerMap.keySet()) {
+                serviceRegistry.register(interfaceName, serviceAddress);
+                logger.info("register service: {} => {}", interfaceName, serviceAddress);
             }
-        });
-
-        ChannelFuture future = bootstrap.bind(port).sync();
-
-        // 注册 RPC 服务地址
-        String serviceAddress = InetAddress.getLocalHost().getHostAddress() + ":" + port;
-        for (String interfaceName : handlerMap.keySet()) {
-            serviceRegistry.register(interfaceName, serviceAddress);
-            logger.info("register service: {} => {}", interfaceName, serviceAddress);
+            // 释放资源
+            future.channel().closeFuture().sync();
+        } finally {
+            // 关闭 RPC 服务器
+            childGroup.shutdownGracefully();
+            bossGroup.shutdownGracefully();
         }
-        // 释放资源
-        future.channel().closeFuture().sync();
     }
 }

@@ -1,4 +1,4 @@
-package main.org.orh.rpc.client;
+package org.orh.rpc.client;
 
 import org.orh.rpc.client.RpcClient;
 import org.orh.rpc.hello.api.HelloService;

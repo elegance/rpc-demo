@@ -7,6 +7,6 @@ import org.orh.rpc.server.RpcService;
 public class HelloServerImpl implements HelloService {
     @Override
     public String say(String name) {
-        return null;
+        return "hello " + name;
     }
 }

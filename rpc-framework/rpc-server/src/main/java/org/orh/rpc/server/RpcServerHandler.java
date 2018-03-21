@@ -8,7 +8,6 @@ import org.orh.rpc.common.bean.RpcResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Map;
 
@@ -32,7 +31,7 @@ public class RpcServerHandler extends SimpleChannelInboundHandler<RpcRequest> {
         response.setRequestId(rpcRequest.getRequstId());
 
         try {
-            Object result = hande(rpcRequest);
+            Object result = handle(rpcRequest);
             response.setResult(result);
         } catch(Exception e) {
             // 处理 PRC 异常
@@ -40,10 +39,10 @@ public class RpcServerHandler extends SimpleChannelInboundHandler<RpcRequest> {
             logger.error("handle result failure", e);
         }
         // 写入RPC 响应对象(写入完毕后立即关闭与客户端的连接)
-        channelHandlerContext.write(response).addListener(ChannelFutureListener.CLOSE);
+        channelHandlerContext.writeAndFlush(response).addListener(ChannelFutureListener.CLOSE);
     }
 
-    private Object hande(RpcRequest rpcRequest) throws Exception {
+    private Object handle(RpcRequest rpcRequest) throws Exception {
         // 获取服务实例
         String serviceName = rpcRequest.getInterfaceName();
         Object serviceBean = handlerMap.get(serviceName);

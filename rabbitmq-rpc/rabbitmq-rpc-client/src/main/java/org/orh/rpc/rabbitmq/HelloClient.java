@@ -15,6 +15,6 @@ public class HelloClient {
     private DirectExchange exchange;
 
     public String send(String name) {
-        return (String) rabbitTemplate.convertSendAndReceive(exchange.getName(), name);
+        return (String) rabbitTemplate.convertSendAndReceive(exchange.getName(), "rpc", name);
     }
 }

@@ -11,6 +11,6 @@ public class HelloServer {
      */
     @RabbitListener(queues = "rpc-queue")
     public String receive(String message) {
-        return "hello" + message;
+        return "hello " + message;
     }
 }
